@@ -29,12 +29,25 @@ rooms.forEach((room) => {
         let appliance_init = appliance_inits.filter(obj => { return obj.type === appliance_type;});
         
         let watts1 = appliance_init[0].watts1; // on watts
-
-        console.log(appliance_init[0].watts1);
-
         let watts2 = appliance_init[0].watts2; // standby watts
+
+        let motive = appliance_init[0].motive;
+        let min  = appliance_init[0].min;
+        let max = appliance_init[0].max;
+        if(appliance_init[0].alwaysOn == true) {
+            alwaysOn = true;
+        } else {
+            alwaysOn = false;
+        }
+
         appliance_objects.push( 
-            new Appliance(appliance_id, appliance_type, watts1, watts2, room.room_id) 
+            new Appliance(appliance_id, 
+                appliance_type, 
+                watts1, watts2, 
+                room.room_id, 
+                motive,
+                min, max,
+                alwaysOn) 
         );
 
         appliance.data = [];
@@ -42,9 +55,9 @@ rooms.forEach((room) => {
     });
 });
 
-// Create a person:
+// Create a agent:
 let watchfulness = 0.5;
-person = new Agent(watchfulness);
+agent = new Agent(watchfulness);
 
 let schedule = [];
 
@@ -69,7 +82,6 @@ const timesteps = days * 24 * 60 * 60 / timestep_length;
 console.log("total steps: " + timesteps);
 
 const delay = 0;
-
 let t = 0; 
 
 simulationForward();
@@ -77,24 +89,80 @@ simulationForward();
 function simulationForward() {        
     setTimeout(function() {   // I'm setting a timeout just to the ticks of the function
 
+        appliance_objects.forEach( (appobj) => {
+            //console.log(appobj.timeleft);
+            if(appobj.timeleft > 0) {
+                appobj.timeleft--;
+            }
+        });
+
         let fakeDate = new Date(timestamp * 1000);
         dayOfWeek = fakeDate.getUTCDay();
         hour = fakeDate.getUTCHours();
 
         // Stuff happens to environment
 
-        // Stuff happens to person
-        person.hunger += 0.002;
+        // Stuff happens to agent
+        agent.hunger += 0.0025;
 
-        // Decide what the person is doing based on state
-        if(person.hunger >= 1.0) {
-            person.eat();
+        //console.log(appliance_objects);
+
+        // Decide what the agent is doing based on state
+        if(agent.hunger >= 1.0 && agent.isCooking == false) {
+            agent.isCooking = true;
+            console.log('--- hunger has struck & agent is not cooking  --- ');
+            // if it's past sunset, turn on the kitchen light...
+
+            // Get all appliances that affect the hunger motive
+            hungerapps = appliance_objects.filter( (appliance_object) => {return appliance_object.motive == 'hunger'});
+            numapps = 1 + Math.floor(Math.random() * Math.floor(hungerapps.length-1));
+    
+            hungerapps.sort(function() { return 0.5 - Math.random();})
+            
+            onapps = [];
+            for(j=0; j<numapps; j++) {
+                onapps.push(hungerapps.pop());
+            }
+            
+            //console.log(onapps);
+
+            // turn on appliances for determined amount of minutes 
+            onapps.forEach((onapp) => {  
+                ontime = getRandomInt(onapp.min, onapp.max);  
+                onapp.timeleft = ontime;
+                console.log('turning on ' + onapp.id + ' for ' + ontime + ' minutes');
+                onapp.turnOn();
+            });
+            console.log('--');
         }
+
+        if(agent.isCooking == true) {
+            sum = 0;
+            onapps.forEach((onapp) => { 
+                //console.log('timeleft: ' + onapp.timeleft = );
+                if(onapp.timeleft == 0 && onapp.state == 1) {
+                    console.log('turning off ' + onapp.id);
+                    onapp.turnOff();
+                }
+                sum += onapp.timeleft;
+            });
+            //console.log('--');
+
+            if(sum == 0) {
+                //console.log('appliances are all out of time');
+                agent.isCooking = false;
+                agent.eat();
+                console.log('agent has eaten!');
+                console.log('==');
+            }
+        }
+
+        //agent.eat();
 
         // Create appliance_id -> action pairs for this timestep
         let appliance_actions = [];
 
-        if(person.isAtHome == true) {
+        if(agent.isAtHome == true) {
             appliance_objects.forEach((appliance_object) => {
                 // randomized action:
                 let random = Math.random();
@@ -123,15 +191,20 @@ function simulationForward() {
 
                 // Perform actions on appliance as per actions 
                 if(appliance_actions[appliance_id] == 1) {
-                    appliance_object.turnOn();
+                    //appliance_object.turnOn();
                 } else if(appliance_actions[appliance_id] == -1) {
-                    appliance_object.turnOff();
+                    //appliance_object.turnOff();
                 } else {
-                    appliance_object.turnStandby();
+                    //appliance_object.turnStandby();
                 }
 
+                // Turn on appliances that are always on
+                if(appliance_object.alwaysOn == true) {
+                    appliance_object.turnOn();
+                } 
+
                 // When finished interactions, get the current watt output of appliance
-                let watts = appliance_object.outputWatts; 
+                let watts = appliance_object.outputWatts;
 
                 //console.log("appliance_object.state: " + appliance_object.state + ", watts: " + watts);
                 //console.log("logging " + watts + " for appliance " + appliance_id);
@@ -170,4 +243,9 @@ function completeSimulation() {
     });
 }
 
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 

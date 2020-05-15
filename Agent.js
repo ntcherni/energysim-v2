@@ -8,6 +8,7 @@ class Agent {
 		this.isAtHome = true; // home by default
 		this.isSleeping = false; // not asleep by default
 		this.isBusy = false; // not doing anything by default 
+		this.isCooking = false;
 		
 		// integers 
 

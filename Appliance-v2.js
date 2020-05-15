@@ -1,5 +1,5 @@
 class Appliance {
-	constructor( _id, _type, _watts1, _watts2, _location) {
+	constructor( _id, _type, _watts1, _watts2, _location, _motive, _min, _max, _alwaysOn) {
 		this.id = _id;
 		this.type = _type; 
 
@@ -11,6 +11,14 @@ class Appliance {
 
 		this.timesTurnedOn = 0;
 		this.outputWatts = 0; // output watts
+
+		this.motive = _motive;
+
+		this.timeleft = 0;
+		this.min = _min;
+		this.max = _max;
+
+		this.alwaysOn = _alwaysOn;
 	}
 	
 	turnOn() {

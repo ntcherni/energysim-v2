@@ -25,9 +25,20 @@ class Appliance {
 		this.state = 1;
 		this.outputWatts = this.watts1;
 	}
-	turnOff() {
-		this.state = -1;
-		this.outputWatts = 0;
+
+	turnOff(watchfulness) {
+		if(this.watts1 > this.watts2) {
+			if((1-Math.random()) < watchfulness) {
+				this.state = -1; 
+				this.outputWatts = 0;
+			} else {
+				this.state = 0;
+				this.outputWatts = this.watts2;
+			}
+		} else {
+			this.state = -1;
+			this.outputWatts = 0;
+		}
 	}
 	turnStandby() {
 		this.state = 0;

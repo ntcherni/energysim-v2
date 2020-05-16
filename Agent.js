@@ -5,9 +5,10 @@ class Agent {
 		this.increment = _Increment;
 
 		// booleans
-		this.isAtHome = true; // home by default
+		this.isHome = true; // home by default
 		this.isSleeping = false; // not asleep by default
 		this.isBusy = false; // not doing anything by default 
+		
 		this.isCooking = false;
 		
 		// integers 
@@ -33,7 +34,11 @@ class Agent {
 	// -- 
 	
 	goToSleep() {
-		this.isAsleep = 1; 
+		this.isSleeping = true; 
+	}
+
+	wakeUp() {
+		this.isSleeping = false;
 		this.energy = 1.0;
 	}
 

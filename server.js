@@ -57,7 +57,7 @@ app.post('/add-appliance', (req, res) => {
         if(room.room_id === roomName) found = true;
     });
     if(!found) {
-        res.json({msg: "no such room"});
+        res.json({msg: "No such room"});
     } else {
         let i = 0;
         house.forEach((room) => {
@@ -73,9 +73,24 @@ app.post('/add-appliance', (req, res) => {
 app.get('/save', (req, res) => {
     // add layout info here? 
     let json = JSON.stringify(house, null, 4);
-    fs.writeFile('./setup_data.js', json, (err) => {
+    fs.writeFile('./setup_data.json', json, (err) => {
         if (err) throw err;
-        console.log('wrote setup data!');
+        console.log('Wrote setup data!');
+        res.json({'success' : 'true'});
+    });
+});
+
+app.post('/save', (req, res) => {
+    settings = [];
+    settings.push(req.body);
+    rooms = house;
+    data = [];
+    data.push({settings});
+    data.push({rooms});
+    let json = JSON.stringify(data, null, 4);
+    fs.writeFile('./setup_data.json', json, (err) => {
+        if (err) throw err;
+        console.log('Wrote setup data!');
         res.json({'success' : 'true'});
     });
 });
@@ -99,7 +114,7 @@ app.get('/graphs', (req, res) => {
         let rooms = dataset[1];
 
         let condensed_dataset = [];
-        rooms = condense(rooms);
+        rooms = condense_hourly(rooms);
         condensed_dataset.push(settings);
         condensed_dataset.push(rooms);
 
@@ -119,7 +134,7 @@ app.get('/generate', (req, res) => {
     // Now we can run a script and invoke a callback when complete, e.g.
     runScript('./generate-v2.js', function (err) {
         if (err) throw err;
-        console.log('generated!');
+        console.log('Generated!');
         res.json({ success: true });
     });
 
@@ -130,8 +145,6 @@ app.get('/appliance-data.js', (req, res) => {
     fs.readFile('./applianceInits.js', (err, data) => {
             res.json(applianceInits);
     });
-
-    //res.sendFile('./applianceInit.js');
 });
 
 app.listen(PORT, () => {
@@ -164,8 +177,8 @@ function runScript(scriptPath, callback) {
     });
 }
 
-function condense(rooms) {
-    console.log("condensing");
+function condense_hourly(rooms) {
+    console.log("Condensing hourly...");
     for(i = 0; i < rooms.length; i++) {    
         let appliances = rooms[i].appliances;
         for(j = 0; j < appliances.length; j++) {
@@ -186,8 +199,14 @@ function condense(rooms) {
             //console.log(new_y);
             rooms[i].appliances[j].data[0].y = new_y;
             rooms[i].appliances[j].data[0].x = new_x;
+            console.log( rooms[i].appliances[j].appliance_id );
+            rooms[i].appliances[j].layout = {
+                "title" : rooms[i].appliances[j].appliance_id + " in " + rooms[i].room_id,
+                "xaxis" : {"title" : "time (hours)"}, 
+                "yaxis" : {"title" : "joules (watts/sec)"}
+            }; 
         }
     }
-    console.log(rooms[0].appliances[0].data);
+    //console.log(rooms[0].appliances[0].data);
     return rooms;
 }

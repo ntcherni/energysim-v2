@@ -9,56 +9,6 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
  
   {{!-- <link rel="stylesheet" href="../../css/style.css"> --}}
-  <script>
-    $(document).ready(function() {
-        $('.add_room').on('click', function(event) {
-            console.log('!');
-            let room_name = (event.target.innerHTML).toLowerCase();
-            room_name = room_name.trim();
-            room_name = room_name.replace(' ', '_');
-
-            $.ajax({
-                url: '/add-room', 
-                type: 'POST', 
-                contentType: 'application/json', 
-                data: JSON.stringify({name: room_name})
-            })
-            .done((data) => {
-                location.reload();
-            });
-           //console.log(room_name);
-        });
-        $('.add_appliance').on('click', (event) => {
-            let room_id = (event.target.id).split("-")[1];
-            let dropdown_id = room_id + "_appliances";
-            let selected_type  = $("select[name='"+dropdown_id+"']").val();
-            console.log("adding appliance");
-            $.ajax({
-                url: '/add-appliance',
-                type: 'POST', 
-                contentType: 'application/json',
-                data: JSON.stringify({room_id: room_id, selected_type })
-            })
-            .done((data) => {
-                location.reload();
-            });
-        });
-
-        $("#clear").click( () => {
-            $.get("/empty", () => {
-                location.reload();
-            });
-        });
-
-        $("#save").click( () => {
-            $.get("/save", () => {
-                location.reload();
-                alert("Setup saved to setup_data.js");
-            });
-        });        
-    });      
-  </script>
-
 <body>
     {{{body}}}
 </body>

@@ -1,44 +1,14 @@
 [
-    { "settings" : 
-      [
-        { 
-          "start_time" : "1588847638",
-          "increment" : "60",
-          "days" : "7"
-        }
-      ] 
-    }, 
-    { "rooms" : 
-        [
+    {
+        "settings": [
             {
-                "room_id": "kitchen_3113",
-                "appliances": [
-                    {
-                        "appliance_id": "fridge_4158"
-                    },
-                    {
-                        "appliance_id": "microwave_9718"
-                    },
-                    {
-                        "appliance_id": "oven_2475"
-                    },
-                    {
-                        "appliance_id": "stove_6854"
-                    },
-                    {
-                        "appliance_id": "toaster_1961"
-                    },
-                    {
-                        "appliance_id": "kettle_5024"
-                    },
-                    {
-                        "appliance_id": "coffeemaker_4582"
-                    },
-                    {
-                        "appliance_id": "dishwasher_2258"
-                    }
-                ]
+                "start": 1589616105,
+                "increment": 60,
+                "days": 365
             }
         ]
+    },
+    {
+        "rooms": []
     }
 ]

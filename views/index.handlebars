@@ -6,16 +6,78 @@
       $.each(appliance_list, (index, appliance) => {
         appliance_type = appliance.type;
         appliance_type = appliance_type.replace(' ', '_');
-
         $(".appliance-list").append("<option value='"+appliance_type+"'>"+appliance.type+"</option>");
       });
     });
 
+      $('.add_room').on('click', function(event) {
+            console.log('!');
+            let room_name = (event.target.innerHTML).toLowerCase();
+            room_name = room_name.trim();
+            room_name = room_name.replace(' ', '_');
+
+            $.ajax({
+                url: '/add-room', 
+                type: 'POST', 
+                contentType: 'application/json', 
+                data: JSON.stringify({name: room_name})
+            })
+            .done((data) => {
+                location.reload();
+            });
+           //console.log(room_name);
+        });
+        $('.add_appliance').on('click', (event) => {
+            let room_id = (event.target.id).split("-")[1];
+            let dropdown_id = room_id + "_appliances";
+            let selected_type  = $("select[name='"+dropdown_id+"']").val();
+            console.log("adding appliance");
+            $.ajax({
+                url: '/add-appliance',
+                type: 'POST', 
+                contentType: 'application/json',
+                data: JSON.stringify({room_id: room_id, selected_type })
+            })
+            .done((data) => {
+                location.reload();
+            });
+        });
+
+        $("#clear").click( () => {
+            $.get("/empty", () => {
+                console.log('emptying!');
+                location.reload();
+            });
+        });
+
+        //$("#save").click( () => {
+          //  $.get("/save", () => {
+            //    location.reload();
+              //  alert("Setup saved to setup_data.js");
+            //});
+        //});
+
+        $("#save").click( () => {
+            start = Math.floor(Date.now() / 1000);
+            days = parseInt($("#days_input").val());
+            increment = 60;
+            console.log('saving!');
+            $.ajax({
+                url: '/save',
+                type: 'POST', 
+                contentType: 'application/json',
+                data: JSON.stringify({ start, increment, days })
+            })
+            .done((data) => {
+                location.reload();
+            });
+
+        });
   });
   
 </script> 
 
-<div class="container-fluid">
+<div class="container-fluid" style="padding: 10px">
     <div class="col-sm-16">
       <div class="well">
         <h2>Energysim v1.0</h2>
@@ -24,7 +86,7 @@
         <h4> Days: 
           <input 
             class="form-control" 
-            value="100" 
+            value="7" 
             id="days_input" 
             type="number"
           /> 
@@ -76,7 +138,7 @@
                           class="btn btn-primary add_appliance" 
                           id="to-{{this.room_id}}" 
                           class="btn btn-primary">
-                          add
+                          Add
                         </button>
                     </div>
                 </div>
@@ -94,8 +156,8 @@
 
         <hr />
 
-    <p><button id="clear" class="btn btn-primary"> clear house </button></p>
-    <p><button id="save" class="btn btn-primary"> save house </button></p>
+    <p><button id="clear" class="btn btn-primary"> Clear </button>
+    <button id="save" class="btn btn-primary"> Save  </button></p>
     {{!-- <p><button id="generate_data" class="btn btn-primary"> generate and display data </button></p> --}}
 
     </div>
@@ -103,26 +165,26 @@
       <div class="row">
         <div class="col-sm-3">
           <div class="well">
-            <h4>Users</h4>
-            <p>1 Million</p> 
+            <h4>Thing</h4>
+            <p>...</p> 
           </div>
         </div>
         <div class="col-sm-3">
           <div class="well">
-            <h4>Pages</h4>
-            <p>100 Million</p> 
+            <h4>Thing</h4>
+            <p>...</p> 
           </div>
         </div>
         <div class="col-sm-3">
           <div class="well">
-            <h4>Sessions</h4>
-            <p>10 Million</p> 
+            <h4>Thing</h4>
+            <p>...</p> 
           </div>
         </div>
         <div class="col-sm-3">
           <div class="well">
-            <h4>Bounce</h4>
-            <p>30%</p> 
+            <h4>Thing</h4>
+            <p>...</p> 
           </div>
         </div>
       </div>
@@ -146,9 +208,9 @@
 
 
   <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-    Launch demo modal
-  </button>
+<!--<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+    Modal
+</button>-->
   
   <!-- Modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

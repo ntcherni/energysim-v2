@@ -17,6 +17,9 @@
   "scripts": {
     "dev": "nodemon server"
   },
+  "nodemonConfig" : {
+    "ignore" : ["/home/nickt/energysim-v2/*.json"]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"

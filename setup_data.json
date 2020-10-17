@@ -2,13 +2,34 @@
     {
         "settings": [
             {
-                "start": 1589616105,
+                "start": 1602493518,
                 "increment": 60,
-                "days": 365
+                "days": 7
             }
         ]
     },
     {
-        "rooms": []
+        "rooms": [
+            {
+                "room_id": "kitchen_4283",
+                "appliances": [
+                    {
+                        "appliance_id": "microwave_6483"
+                    },
+                    {
+                        "appliance_id": "coffeemaker_1388"
+                    },
+                    {
+                        "appliance_id": "oven_8806"
+                    },
+                    {
+                        "appliance_id": "stove_6268"
+                    },
+                    {
+                        "appliance_id": "fridge_9782"
+                    }
+                ]
+            }
+        ]
     }
 ]

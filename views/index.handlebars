@@ -69,6 +69,7 @@
                 data: JSON.stringify({ start, increment, days })
             })
             .done((data) => {
+                alert('saved to setup_data.json');
                 location.reload();
             });
 
@@ -86,7 +87,7 @@
         <h4> Days: 
           <input 
             class="form-control" 
-            value="7" 
+            value="30" 
             id="days_input" 
             type="number"
           /> 
@@ -157,7 +158,7 @@
         <hr />
 
     <p><button id="clear" class="btn btn-primary"> Clear </button>
-    <button id="save" class="btn btn-primary"> Save  </button></p>
+    <button id="save" class="btn btn-primary"> Save </button></p>
     {{!-- <p><button id="generate_data" class="btn btn-primary"> generate and display data </button></p> --}}
 
     </div>

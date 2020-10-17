@@ -2,7 +2,7 @@ const appliance_inits = [
 	{
 		type : 'fridge',
 		watts1 : 200,
-		watts2 : 190, 
+		watts2 : 100, 
 		min: false,
 		max: false,
 		motive: 'hunger',
@@ -11,7 +11,7 @@ const appliance_inits = [
 	{
 		type : 'microwave',
 		watts1 : 1000,
-		watts2 : 5,
+		watts2 : 100,
 		min: 1,
 		max: 5,
 		motive: 'hunger',
@@ -19,7 +19,7 @@ const appliance_inits = [
 	{
 		type : 'oven',
 		watts1 : 2000,
-		watts2 : 2000,
+		watts2 : 100,
 		min: 10,
 		max: 60,
 		motive: 'hunger',
@@ -27,7 +27,7 @@ const appliance_inits = [
 	{
 		type : 'stove',
 		watts1 : 1250,
-		watts2 : 1250,
+		watts2 : 750,
 		min: 10,
 		max: 60,
 		motive: 'hunger',
@@ -35,7 +35,7 @@ const appliance_inits = [
 	{
 		type : 'toaster',
 		watts1 : 1400,
-		watts2 : 1400,
+		watts2 : 700,
 		min: 1,
 		max: 5,
 		motive: 'hunger',
@@ -43,7 +43,7 @@ const appliance_inits = [
 	{
 		type : 'kettle',
 		watts1 : 1500,
-		watts2 : 1500,
+		watts2 : 250,
 		min: 5,
 		max: 10,
 		motive: 'hunger',
@@ -51,7 +51,7 @@ const appliance_inits = [
 	{
 		type : 'coffeemaker',
 		watts1 : 900,
-		watts2 : 900,
+		watts2 : 250,
 		min: 5,
 		max: 10,
 		motive: 'hunger',
@@ -67,14 +67,14 @@ const appliance_inits = [
 	{
 		type : 'exhaust',
 		watts1 : 260,
-		watts2 : 260,
+		watts2 : 100,
 		min: false,
 		max: false,
 	},
 	{
 		type : 'light',
 		watts1 : 100,
-		watts2 : 100,
+		watts2 : 5,
 		min: 1,
 		max: 1440,
 	},
@@ -84,15 +84,15 @@ const appliance_inits = [
 		watts2 : 5,
 		min: 15,
 		max: 360,
-		motive: 'entertainment'
+		motive: 'boredom'
 	},
 	{
 		type : 'xbox',
 		watts1 : 185,
-		watts2 : 5,
+		watts2 : 20,
 		min: 15,
 		max: 360,
-		motive: 'entertainment'
+		motive: 'boredom'
 	},	
 	{
 		type : 'dvd',
@@ -100,7 +100,7 @@ const appliance_inits = [
 		watts2 : 5,
 		min: 15,
 		max: 360,
-		motive: 'entertainment'
+		motive: 'boredom'
 	},	
 	{
 		type : 'fan',
@@ -116,7 +116,7 @@ const appliance_inits = [
 		watts2 : 5,
 		min: 30,
 		max: 360,
-		motive: 'entertainment'
+		motive: 'boredom'
 	},	
 	{
 		type : 'plug',

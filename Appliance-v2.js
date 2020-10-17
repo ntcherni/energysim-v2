@@ -24,26 +24,28 @@ class Appliance {
 	turnOn() {
 		this.state = 1;
 		this.outputWatts = this.watts1;
+		if(this.timeleft == 0) {
+			this.timeleft = getRandomInt(this.min, this.max);
+		}
 	}
 
 	turnOff(watchfulness) {
-		if(this.watts1 > this.watts2) {
-			if((1-Math.random()) < watchfulness) {
-				this.state = -1; 
-				this.outputWatts = 0;
-			} else {
-				this.state = 0;
-				this.outputWatts = this.watts2;
-			}
-		} else {
-			this.state = -1;
-			this.outputWatts = 0;
-		}
+		this.state = -1; // off
+		this.outputWatts = 0;
+		this.timeleft = 0;
 	}
+
 	turnStandby() {
 		this.state = 0;
 		this.outputWatts = this.watts2;
+		this.timeleft = 0;
 	}
+}
+
+function getRandomInt(min, max) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 module.exports = Appliance

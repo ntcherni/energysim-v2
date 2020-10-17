@@ -1,84 +1,100 @@
 class Agent {
-	constructor(_watchfulness, _Increment) {
+	constructor(_watchfulness) {
 		// traits (floats)
 		this.watchfulness = _watchfulness; // how watchful the Agent is about energy usage
-		this.increment = _Increment;
 
 		// booleans
-		this.isHome = true; // home by default
-		this.isSleeping = false; // not asleep by default
-		this.isBusy = false; // not doing anything by default 
+		this.home = true; // home by default
+		this.awake = true; // not asleep by default
+		this.busy = false; // not doing anything by default 
 		
-		this.isCooking = false;
+		this.cooking = false;
+		this.beingEntertained = false;
 		
 		// integers 
 
 		// motivations (floats)
-		this.hunger =  0.0;
-		this.energy = 1.0; 
+		this.hungerLevel =  0.0;
+		this.energyLevel = 1.0; 
+		this.boredomLevel = 0.99;
+	}
+
+	changeApplianceState(appliance) {
+		//console.log('Changing state.');
+		//console.log(appliance.motive, appliance.state, this.hungerLevel);
+		if(!agent.cooking && appliance.motive == 'hunger' && (appliance.state == -1 || appliance.state == 0) && this.hungerLevel >= 1.0 && appliance.timeleft == 0) {
+			//console.log('We in.');
+			//console.log(Math.random(), this.watchfulness);
+			if(Math.random() > this.watchfulness) { 
+				console.log('Agent is turning on ' + appliance.id);
+				console.log('Appliance state is ' + appliance.state);
+				appliance.turnOn();
+				console.log('Appliance state is ' + appliance.state);
+				console.log('Appliance timeleft is ' + appliance.timeleft);
+				this.cooking = true;
+			} 
+			
+			// Need to handle case where Math.random is not > this.watchfulness
+
+			// else {
+			// 	// Leave appliance state as it is, but set a dummy timeleft value to avoid it triggering for that time span
+			// 	appliance.state = appliance.state;
+			// 	appliance.timeleft = getRandomInt(appliance.min, appliance.max);
+			// }
+		}
+		if(appliance.timeleft == 0 && appliance.state == 1 && appliance.alwaysOn == false) {
+			//console.log('Agent is done using ' + appliance.id);
+			if(Math.random() > this.watchfulness) {
+				console.log('Agent is turning standby ' + appliance.id);
+				appliance.turnStandby();
+			} else {
+				console.log('Agent is turning off ' + appliance.id);
+				appliance.turnOff();
+			}
+		}
 	}
 	
-	changeWatchfulness(new_watchfulness) {
-		this.watchfulness = new_watchfulness;
+	changeWatchfulness(_w) {
+		this.watchfulness = _w;
 	}
 	// -- 
 
 	arriveHome() {
-		this.isAtHome = 1; 
+		this.home = true; 
 	}
 
 	leaveHome() {
-		this.isAtHome = -1; 
+		this.home = false; 
 	}
 
 	// -- 
 	
 	goToSleep() {
-		this.isSleeping = true; 
+		this.awake = false;
+		this.beingEntertained = false;
+		this.cooking = false;
 	}
 
 	wakeUp() {
-		this.isSleeping = false;
-		this.energy = 1.0;
+		this.awake = true;
+		this.energyLevel = 1.0;
 	}
 
 	// -- 
 	eat() {
-		this.hunger = 0.0;
+		this.hungerLevel = 0.0;
+		this.cooking = false;
 	}
-
-	doLaundry() {
-		this.laundry = 0.0;
+	
+	setBoredom() {
+		this.boredomLevel = 0.0;
 	}
+}
 
-	takeShower() {
-		this.hygiene = 1.0;
-	}
-
-	takeBath() {
-		this.hygiene = 1.0;
-	}	
-
-	goOut() {
-		this.social = 1.0;
-	}
-
-	talkOnPhone() {
-		this.social = 1.0;
-	}
-
-	relax() {
-		this.comfort = 1.0;
-	}
-
-	sleep() {
-		this.energy += 0.125/(3600/this.increment); 
-		if(this.energy > 1.0) { 
-			this.energy = 1.0;
-			this.sleeping = false;
-			this.busy = false;
-		}
-	}
+function getRandomInt(min, max) {
+	min = Math.ceil(min);
+	max = Math.floor(max);
+	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 module.exports = Agent

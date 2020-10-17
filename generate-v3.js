@@ -54,7 +54,7 @@ rooms.forEach((room) => {
 });
 
 // Create an agent:
-let watchfulness = 0.0; // determines how often the agent turns devices fully off after turning them on
+let watchfulness = 0.5; // determines how often the agent turns devices fully off after turning them on
 agent = new Agent(watchfulness);
 
 // Variables for running simulation:
@@ -153,7 +153,7 @@ function simulationForward() {
                     console.log('Turning off all appliances.');
                     applianceObjects.forEach( (applianceObject) =>  {
                         if(applianceObject.state == 1) {
-                            applianceObject.turnOff(watchfulness);
+                            applianceObject.turnOff();
                         }
                     });
                 }
@@ -174,7 +174,7 @@ function simulationForward() {
                     console.log('Turning off all appliances.');
                     applianceObjects.forEach( (applianceObject) =>  {
                         if(applianceObject.state == 1) {
-                            applianceObject.turnOff(watchfulness);
+                            applianceObject.turnOff();
                         }
                     });
                 }
@@ -195,7 +195,7 @@ function simulationForward() {
                     console.log('Turning off all appliances.');
                     applianceObjects.forEach( (applianceObject) =>  {
                         if(applianceObject.state == 1) {
-                            applianceObject.turnOff(watchfulness);
+                            applianceObject.turnOff();
                         }
                     });
                 }
@@ -203,125 +203,57 @@ function simulationForward() {
         }
  // -- End of Days/Time-based Triggering
 
+        console.log('TIMESTEP #: ' + t);
 
  // Start of Triggering Based on Motivations and Conditions
 
-
         if(agent.home && agent.awake) {
-            hunger_appliances = applianceObjects.filter( (applianceObject) => {return applianceObject.motive == 'hunger'});
-            boredom_appliances = applianceObjects.filter( (applianceObject) => {return applianceObject.motive == 'boredom'});
 
-            if(agent.hungerLevel >= 1.0) {
-                selected_hunger_appliances = [];
+            if(agent.cooking) { 
+                console.log('Agent is cooking.'); 
+            } else {
+                console.log('Agent is not cooking.');
+            }
 
-                hunger_appliances.sort(function() { return 0.5 - Math.random();})
-                selected_hunger_appliances = hunger_appliances.slice(0, getRandomInt(1, hunger_appliances.length/2)); 
+            hunger_appliances = applianceObjects.filter( (applianceObject) => { return applianceObject.motive == 'hunger' } );
+            boredom_appliances = applianceObjects.filter( (applianceObject) => { return applianceObject.motive == 'boredom' } );
+
+            // At a certain timestep, 
+            if(agent.hungerLevel >= 1.0 && !agent.cooking) {
+                console.log('Agent is hungry.');
+                // Randomize
+                hunger_appliances.sort(function() { return 0.5 - Math.random();});
+                
+                // 1 or more and less than half
+                number_of_hunger_appliances = getRandomInt(1, hunger_appliances.length/2);
+                selected_hunger_appliances = hunger_appliances.slice(0, number_of_hunger_appliances); 
 
                 selected_hunger_appliances.forEach( (hunger_appliance) => {
                     agent.changeApplianceState(hunger_appliance);
                 });
             }
 
+            if(agent.hungerLevel >= 1.0 && agent.cooking) {
+                sum = 0;
+                hunger_appliances.forEach( (hunger_appliance) => {
+                    sum += hunger_appliance.timeleft;   
+                    agent.changeApplianceState(hunger_appliance);                 
+                }); 
+                console.log('Sum is ' + sum);
+                if (sum == 0) {
+                    console.log('Agent has eaten.');
+                    agent.eat();
+                }
+            }
+
             if(agent.boredomLevel >= 1.0) {
                 // do boredom stuff
             }
-            
         }
 
-        // If the agent is currently at home and is not sleeping ... 
-        if(agent.home && agent.awake) {
-            //console.log('Agent can interact with appliances at home.');
-            
-            // Hunger strikes and agent is not already cooking
-            if(agent.hungerLevel >= 1.0 && agent.isCooking == false) {
-                console.log('Hunger has struck and the agent is not currently cooking, so it is time to cook.');
-                agent.isCooking = true;
-                
-                // Random notes:
-                    // If it's past sunset, turn on the kitchen light... 
-                    // get sunset time on this day
-                    // for now, I can use 6pm as a standard time 
-
-                // Get all appliances that affect the hunger motive+
-                hungerAppliancess = applianceObjects.filter( (applianceObject) => {return applianceObject.motive == 'hunger'});
-                // Randomize list of appliances
-                hungerAppliancess.sort(function() { return 0.5 - Math.random();})
-                // Get a random number of hunger-affecting apps
-                numberOfAppliances = 1 + Math.floor(Math.random() * Math.floor(hungerAppliancess.length-1));
-                // Go through numberOfAppliances appliances in the randomized list and add appliance to list of turnedOnAppliances
-                turnedOnAppliances = [];
-                for(j=0; j<numberOfAppliances; j++) {
-                    turnedOnAppliances.push(hungerAppliancess.pop());
-                }
-                
-                // Go through the list of turnedOnAppliances, decide how long to turn them on for between appliance's min and max values, and turn them on
-                // turnedOnAppliances.forEach((turnedOnAppliance) => {  
-                //     ontime = getRandomInt(turnedOnAppliance.min, turnedOnAppliance.max);  
-                //     turnedOnAppliance.timeleft = ontime;
-                //     if(turnedOnAppliance.alwaysOn == false) {
-                //         console.log('Turning on ' + turnedOnAppliance.id + ' for ' + ontime + ' minutes.');
-                //     }
-                //     turnedOnAppliance.turnOn();
-                // });
-            }
-            // -- End of agent being hungry
-
-            // Or if agent is already cooking ... 
-            // *** !!! The below code doesn't account for other appliances being on? 
-            // Seems as though 'turnedOnAppliances' only stores hunger-affecting appliances at the moment!!! ***
-            if(agent.isCooking == true) {
-                sum = 0;
-                turnedOnAppliances.forEach((turnedOnAppliance) => { 
-                    //console.log('timeleft: ' + turnedOnAppliance.timeleft = );
-                    if(turnedOnAppliance.timeleft == 0 && turnedOnAppliance.state == 1 && turnedOnAppliance.alwaysOn == false) {
-                        console.log('Turning off ' + turnedOnAppliance.id + ".");
-                        turnedOnAppliance.turnOff(agent.watchfulness);
-                        console.log(turnedOnAppliance.id + ' now set to ' + turnedOnAppliance.outputWatts + ' watts.');      
-                    }
-                    sum += turnedOnAppliance.timeleft;
-                });
-                if(sum == 0) {
-                    // This means all appliances are out of time
-                    //console.log('appliances are all out of time');
-                    agent.isCooking = false;
-                    agent.eat();
-                    console.log('Agent has eaten.');
-                }
-            }       
-            // /end agent is cooking
-
-            // agent is bored and not being entertained
-            if(agent.boredomLevel >= 1.0 && agent.beingEntertained == false) {
-                //console.log("Agent is bored.");
-                // Get all appliances that affect the entertainment motive
-                boredomAppliances = applianceObjects.filter((applianceObject) => {return applianceObject.motive == 'entertainment'});
-                
-                if(boredomAppliances.length > 0) {
-                    //console.log(boredomAppliances);
-                    boredomAppliances.sort(function() {return 0.5 - Math.random();})
-                    boredomAppliances.forEach((app) => {boredomAppliance = app;});
-                    //console.log(boredomAppliance.id);
-
-                    ontime = getRandomInt(boredomAppliance.min, boredomAppliance.max);  
-                    boredomAppliance.timeleft = ontime;
-                    console.log("Turning on " + boredomAppliance.id + " for " + ontime + " minutes.");
-                    boredomAppliance.turnOn();
-                    agent.beingEntertained = true;
-
-                }
-            }
-            // or agent is being entertained 
-            if(agent.beingEntertained == true) {
-                //console.log(boredomAppliance.timeleft, boredomAppliance.state);
-                
-                if(boredomAppliance.timeleft == 0 && boredomAppliance.state == 1) {
-                    console.log('Turning off ' + boredomAppliance.id + ".");
-                    agent.getEntertained();
-                    boredomAppliance.turnOff(agent.watchfulness);
-                    agent.beingEntertained = false;
-                }
-            }
-        }
+        //applianceObjects.forEach( (applianceObject) => {
+          //  agent.changeApplianceState(applianceObject);
+        //});
 
         // Create appliance_id -> action pairs for this timestep
         // let appliance_actions = [];
@@ -406,6 +338,26 @@ function completeSimulation() {
     console.log(settings);
     simulation_completed.push(settings);
     rooms = condense_hourly(rooms);
+
+    rooms.forEach( (room) => {
+        room.total_data = [];
+        room.total_data.push({y: []});
+        room.total_data.layout = {
+            "title" : "total for " + room.room_id,
+            "xaxis" : {"title" : "time (hours)"}, 
+            "yaxis" : {"title" : "joules (watts/sec)"}
+        };
+        for(i = 0; i < timesteps/60; i++) {
+            i_total = 0;
+            room.appliances.forEach( (appliance) => { 
+                i_total += appliance.data[0].y[i];
+            });
+            room.total_data[0].y.push(i_total);
+        }
+    });
+
+    console.log(rooms);
+
     simulation_completed.push(rooms);
 
     let simulation_stringified = JSON.stringify(simulation_completed);
@@ -413,7 +365,7 @@ function completeSimulation() {
         if(err) { 
             throw err;
         } else {
-            console.log('Wrote output to outputs folder!');
+            console.log('Wrote output to /outputs folder. Filename: ' + filename);
         }
     });
 }

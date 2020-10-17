@@ -19,6 +19,13 @@ app.use(express.urlencoded({extended: false}));
 
 const PORT = process.env.PORT || 5002;
 
+
+app.get('/test.json', (req, res) => {
+    //let filepath = path.join("./", "test.json");
+    const json = require("./test.json");
+    res.json(json);
+});
+
 // empty array
 app.get('/empty', (req, res) => {
     house.splice(0, house.length)
@@ -102,10 +109,64 @@ app.get('/', (req, res) => {
     );
 });
 
+app.get('/ietest', (req, res) => {
+    //res.json({ msg: 'msg' });
+    res.render('ietest');
+});
+
+app.get('/graphs/:output_id', (req, res) => {
+    filenames = fs.readdirSync(path.join(__dirname, "outputs"));
+    search_filename = req.params.output_id + ".json"; 
+    console.log('search_filename: ' + search_filename);
+    fs.readFile( path.join(__dirname, "outputs", search_filename), (err, data) => {
+        if(err) { 
+            result_status = "failed"; 
+
+            condensed_dataset = [];
+            res.render('graphs', 
+            { condensed_dataset, filenames,
+                helpers: { 
+                    json: function (context) { return JSON.stringify(context); } 
+                }
+            }
+        );
+        } else { 
+            result_status = "success";
+
+            // process the file data 
+            const dataset = JSON.parse(data);
+        
+            let settings = dataset[0];
+            let rooms = dataset[1]; 
+
+            // condense data
+            let condensed_dataset = [];
+            //rooms = condense_hourly(rooms);
+            condensed_dataset.push(settings);
+            condensed_dataset.push(rooms);
+
+            res.render('graphs', 
+            { condensed_dataset, filenames,
+                helpers: { 
+                    json: function (context) { return JSON.stringify(context); } 
+                }
+            }
+        );
+
+        }
+    });
+});
+
+// without params
 app.get('/graphs', (req, res) => {
-    // exampledata2.json will be replaced by the generated
     // JSON data set from /generate
-    fs.readFile('./output_data.json', (err, data) => {
+    
+    console.log(req['params']);
+
+    filenames = fs.readdirSync(path.join(__dirname, "outputs"));
+    filename = filenames[0];
+
+    fs.readFile(path.join(__dirname, "outputs", filename), (err, data) => {
     //fs.readFile('./output_data.json', (err, data) => {
         if(err) throw err;
         const dataset = JSON.parse(data);
@@ -113,15 +174,18 @@ app.get('/graphs', (req, res) => {
         let settings = dataset[0];
         let rooms = dataset[1];
 
+        // condendsing data: 
         let condensed_dataset = [];
-        rooms = condense_hourly(rooms);
+        //rooms = condense_hourly(rooms);
         condensed_dataset.push(settings);
         condensed_dataset.push(rooms);
 
+        let foldername = path.join(__dirname, 'outputs');
+        var filenames = fs.readdirSync(foldername);
         //console.log(condensed_dataset);
 
         res.render('graphs', 
-            { condensed_dataset, 
+            { condensed_dataset, filenames,
                 helpers: { 
                     json: function (context) { return JSON.stringify(context); } 
                 }
@@ -132,7 +196,7 @@ app.get('/graphs', (req, res) => {
 
 app.get('/generate', (req, res) => {
     // Now we can run a script and invoke a callback when complete, e.g.
-    runScript('./generate-v2.js', function (err) {
+    runScript('./generate-v3.js', function (err) {
         if (err) throw err;
         console.log('Generated!');
         res.json({ success: true });
@@ -153,6 +217,7 @@ app.listen(PORT, () => {
 
 // Child process script:
 var childProcess = require('child_process');
+const { isRegExp } = require('util');
 
 function runScript(scriptPath, callback) {
 
@@ -178,7 +243,7 @@ function runScript(scriptPath, callback) {
 }
 
 function condense_hourly(rooms) {
-    console.log("Condensing hourly...");
+    console.log("Condensing hourly.");
     for(i = 0; i < rooms.length; i++) {    
         let appliances = rooms[i].appliances;
         for(j = 0; j < appliances.length; j++) {
@@ -199,7 +264,7 @@ function condense_hourly(rooms) {
             //console.log(new_y);
             rooms[i].appliances[j].data[0].y = new_y;
             rooms[i].appliances[j].data[0].x = new_x;
-            console.log( rooms[i].appliances[j].appliance_id );
+            //console.log( rooms[i].appliances[j].appliance_id );
             rooms[i].appliances[j].layout = {
                 "title" : rooms[i].appliances[j].appliance_id + " in " + rooms[i].room_id,
                 "xaxis" : {"title" : "time (hours)"}, 
